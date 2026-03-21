@@ -8,7 +8,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         control: resolve(__dirname, 'control.html'),
-        reminder: resolve(__dirname, 'reminder.html')
+        reminder: resolve(__dirname, 'reminder.html'),
+        floating: resolve(__dirname, 'floating.html')
       }
     }
   }

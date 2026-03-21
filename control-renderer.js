@@ -11,9 +11,11 @@ import {
   detectPlatform,
   getStoredInterval,
   getStoredShowTrayTime,
+  getStoredTimerCommand,
   getStoredTheme,
   getThemeStatusText,
   setStoredInterval,
+  setStoredTimerState,
   setStoredShowTrayTime,
   setStoredTheme
 } from './app-shared.js';
@@ -28,13 +30,13 @@ const progressCircle = document.getElementById('progressCircle');
 const timeDisplay = document.getElementById('timeDisplay');
 const timeInput = document.getElementById('timeInput');
 const timeLabel = document.getElementById('timeLabel');
-const statusBadge = document.getElementById('statusBadge');
-const statusText = document.getElementById('statusText');
 const toggleBtn = document.getElementById('toggleBtn');
 const toggleText = document.getElementById('toggleText');
 const intervalValue = document.getElementById('intervalValue');
 const decreaseBtn = document.getElementById('decreaseBtn');
 const increaseBtn = document.getElementById('increaseBtn');
+const resetBtn = document.getElementById('resetBtn');
+const timerControls = document.querySelector('.timer-controls');
 
 // DOM 元素 - 页面切换
 const mainView = document.getElementById('mainView');
@@ -58,6 +60,7 @@ let timerRunning = false;
 let elapsedSeconds = 0;
 let tickInterval = null;
 let lastReminderDismissedAt = localStorage.getItem(STORAGE_KEYS.reminderDismissedAt) || '';
+let lastTimerCommandId = getStoredTimerCommand()?.id || '';
 
 document.body.classList.add(`platform-${platform}`);
 
@@ -84,6 +87,19 @@ function getState() {
     remaining,
     total
   };
+}
+
+function syncTimerState(data = getState()) {
+  setStoredTimerState({
+    running: data.running,
+    intervalMinutes: data.intervalMinutes,
+    elapsed: data.elapsed,
+    updatedAt: Date.now()
+  });
+}
+
+function shouldStartFresh() {
+  return elapsedSeconds === 0 || elapsedSeconds >= currentInterval * 60;
 }
 
 function updateThemeOptions() {
@@ -125,9 +141,6 @@ function updateUI(data = getState()) {
   progressCircle.style.strokeDashoffset = String(offset);
 
   if (data.running) {
-    statusBadge.className = 'status-badge running';
-    statusText.textContent = '计时中';
-
     if (!isEditing) {
       timeLabel.textContent = '剩余时间';
     }
@@ -137,19 +150,19 @@ function updateUI(data = getState()) {
     toggleBtn.querySelector('svg').innerHTML =
       '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
   } else {
-    statusBadge.className = 'status-badge stopped';
-    statusText.textContent = data.elapsed > 0 ? '已暂停' : '未开始';
+    const pausedWithProgress = data.elapsed > 0;
 
     if (!isEditing) {
-      timeLabel.textContent = data.elapsed > 0 ? '剩余时间' : '准备就绪';
+      timeLabel.textContent = pausedWithProgress ? '剩余时间' : '准备就绪';
     }
 
     toggleBtn.className = 'btn-primary';
-    toggleText.textContent = data.elapsed > 0 ? '继续计时' : '开始计时';
+    toggleText.textContent = pausedWithProgress ? '继续计时' : '开始计时';
     toggleBtn.querySelector('svg').innerHTML = '<polygon points="5,3 19,12 5,21"/>';
   }
 
   intervalValue.textContent = `${currentInterval} 分钟`;
+  timerControls?.classList.toggle('has-reset', !data.running && data.elapsed > 0);
 }
 
 async function updateTrayTitle() {
@@ -173,6 +186,75 @@ async function hideControlWindow() {
   await currentWindow.hide();
 }
 
+async function getFloatingWindow() {
+  return WebviewWindow.getByLabel('floating');
+}
+
+async function isFloatingWindowVisible() {
+  const floatingWindow = await getFloatingWindow();
+  if (!floatingWindow) return false;
+
+  try {
+    return await floatingWindow.isVisible();
+  } catch {
+    return false;
+  }
+}
+
+async function createFloatingWindow() {
+  const existingWindow = await getFloatingWindow();
+  if (existingWindow) {
+    return existingWindow;
+  }
+
+  const monitor = await currentMonitor();
+  const size = monitor?.size || { width: 1440, height: 900 };
+  const position = monitor?.position || { x: 0, y: 0 };
+  const width = 100;
+  const height = 36;
+  const x = position.x + size.width - width - 16;
+  const y = position.y + Math.max(48, Math.round(size.height * 0.12));
+
+  return new Promise((resolve, reject) => {
+    const floatingWindow = new WebviewWindow('floating', {
+      url: 'floating.html',
+      title: '站立提醒悬浮窗',
+      width,
+      height,
+      minWidth: width,
+      minHeight: height,
+      maxWidth: width,
+      maxHeight: height,
+      x,
+      y,
+      decorations: false,
+      resizable: false,
+      maximizable: false,
+      minimizable: false,
+      closable: false,
+      skipTaskbar: true,
+      alwaysOnTop: true,
+      focus: false,
+      visible: true,
+      transparent: false
+    });
+
+    floatingWindow.once('tauri://created', () => resolve(floatingWindow));
+    floatingWindow.once('tauri://error', reject);
+  });
+}
+
+async function showFloatingWindow() {
+  const floatingWindow = await createFloatingWindow();
+  await floatingWindow.show();
+}
+
+async function hideFloatingWindow() {
+  const floatingWindow = await getFloatingWindow();
+  if (!floatingWindow) return;
+  await floatingWindow.hide();
+}
+
 async function quitApp() {
   if (tickInterval) {
     clearInterval(tickInterval);
@@ -184,6 +266,11 @@ async function quitApp() {
     await reminderWindow.close().catch(() => {});
   }
 
+  const floatingWindow = await getFloatingWindow();
+  if (floatingWindow) {
+    await floatingWindow.close().catch(() => {});
+  }
+
   if (tray) {
     await TrayIcon.removeById(TRAY_ID).catch(() => {});
   }
@@ -193,6 +280,7 @@ async function quitApp() {
 
 async function rebuildTrayMenu() {
   if (!tray) return;
+  const floatingWindowVisible = await isFloatingWindowVisible();
 
   const menu = await Menu.new({
     items: [
@@ -201,6 +289,14 @@ async function rebuildTrayMenu() {
         text: '打开主面板',
         action: () => {
           void showControlWindow();
+        }
+      },
+      {
+        id: 'toggle-floating',
+        text: floatingWindowVisible ? '隐藏悬浮窗' : '显示悬浮窗',
+        action: () => {
+          void (floatingWindowVisible ? hideFloatingWindow() : showFloatingWindow());
+          void rebuildTrayMenu();
         }
       },
       { item: 'Separator' },
@@ -267,6 +363,21 @@ function stopTimer() {
 
   timerRunning = false;
   updateUI();
+  syncTimerState();
+  void rebuildTrayMenu();
+  void updateTrayTitle();
+}
+
+function resetTimer() {
+  if (tickInterval) {
+    clearInterval(tickInterval);
+    tickInterval = null;
+  }
+
+  timerRunning = false;
+  elapsedSeconds = 0;
+  updateUI();
+  syncTimerState();
   void rebuildTrayMenu();
   void updateTrayTitle();
 }
@@ -311,17 +422,26 @@ async function showReminder() {
   await reminderWindow.setFocus().catch(() => {});
 }
 
-function startTimer() {
-  stopTimer();
+function startTimer({ resetElapsed = false } = {}) {
+  if (tickInterval) {
+    clearInterval(tickInterval);
+    tickInterval = null;
+  }
+
   timerRunning = true;
-  elapsedSeconds = 0;
+  if (resetElapsed) {
+    elapsedSeconds = 0;
+  }
+
   updateUI();
+  syncTimerState();
   void rebuildTrayMenu();
   void updateTrayTitle();
 
   tickInterval = window.setInterval(async () => {
     elapsedSeconds += 1;
     updateUI();
+    syncTimerState();
     void updateTrayTitle();
 
     if (elapsedSeconds >= currentInterval * 60) {
@@ -335,7 +455,7 @@ async function toggleTimer() {
   if (timerRunning) {
     stopTimer();
   } else {
-    startTimer();
+    startTimer({ resetElapsed: shouldStartFresh() });
   }
 }
 
@@ -344,9 +464,11 @@ function setIntervalMinutes(minutes) {
   setStoredInterval(currentInterval);
 
   if (timerRunning) {
-    startTimer();
+    startTimer({ resetElapsed: true });
   } else {
+    elapsedSeconds = Math.min(elapsedSeconds, currentInterval * 60);
     updateUI();
+    syncTimerState();
     void updateTrayTitle();
   }
 }
@@ -404,6 +526,45 @@ function exitEditMode(shouldApply) {
   timeLabel.classList.remove('editing');
 }
 
+async function handleTimerCommand(command) {
+  switch (command.type) {
+    case 'toggle-timer':
+      await toggleTimer();
+      break;
+    case 'start-timer':
+      if (!timerRunning) {
+        startTimer({ resetElapsed: shouldStartFresh() });
+      }
+      break;
+    case 'pause-timer':
+      if (timerRunning) {
+        stopTimer();
+      }
+      break;
+    case 'reset-timer':
+      resetTimer();
+      break;
+    case 'show-main':
+      await showControlWindow();
+      break;
+    case 'show-floating':
+      await showFloatingWindow();
+      break;
+    case 'hide-floating':
+      await hideFloatingWindow();
+      break;
+    case 'quit-app':
+      await quitApp();
+      break;
+    default:
+      break;
+  }
+
+  if (['show-floating', 'hide-floating'].includes(command.type)) {
+    void rebuildTrayMenu();
+  }
+}
+
 function handleStorageChange(event) {
   if (event.key === STORAGE_KEYS.theme) {
     currentTheme = getStoredTheme();
@@ -414,12 +575,24 @@ function handleStorageChange(event) {
   if (event.key === STORAGE_KEYS.intervalMinutes) {
     currentInterval = getStoredInterval(currentInterval);
     updateUI();
+    syncTimerState();
     return;
   }
 
   if (event.key === STORAGE_KEYS.reminderDismissedAt && event.newValue && event.newValue !== lastReminderDismissedAt) {
     lastReminderDismissedAt = event.newValue;
-    startTimer();
+    startTimer({ resetElapsed: true });
+    return;
+  }
+
+  if (event.key === STORAGE_KEYS.timerCommand && event.newValue) {
+    const command = getStoredTimerCommand();
+    if (!command?.id || command.id === lastTimerCommandId) {
+      return;
+    }
+
+    lastTimerCommandId = command.id;
+    void handleTimerCommand(command);
   }
 }
 
@@ -455,11 +628,12 @@ function disableContextMenu() {
 async function init() {
   syncTheme();
   updateUI();
+  syncTimerState();
   setupWindowControls();
   disableContextMenu();
   await currentWindow.onCloseRequested((event) => {
     event.preventDefault();
-    void hideControlWindow();
+    void quitApp();
   });
 
   backBtn?.addEventListener('click', showMainView);
@@ -505,6 +679,10 @@ async function init() {
     setIntervalMinutes(currentInterval + 1);
   });
 
+  resetBtn?.addEventListener('click', () => {
+    resetTimer();
+  });
+
   window.addEventListener('beforeunload', () => {
     if (tickInterval) {
       clearInterval(tickInterval);
@@ -515,6 +693,12 @@ async function init() {
     await createTray();
   } catch (error) {
     console.error('Failed to initialize tray.', error);
+  }
+
+  try {
+    await showFloatingWindow();
+  } catch (error) {
+    console.error('Failed to initialize floating window.', error);
   }
 }
 

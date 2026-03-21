@@ -4,7 +4,8 @@
   "description": "permissions for the standup reminder desktop app",
   "windows": [
     "main",
-    "reminder"
+    "reminder",
+    "floating"
   ],
   "permissions": [
     "core:default",

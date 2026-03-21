@@ -2,7 +2,9 @@ export const STORAGE_KEYS = {
   theme: 'standup-reminder.theme',
   intervalMinutes: 'standup-reminder.interval-minutes',
   showTrayTime: 'standup-reminder.show-tray-time',
-  reminderDismissedAt: 'standup-reminder.reminder-dismissed-at'
+  reminderDismissedAt: 'standup-reminder.reminder-dismissed-at',
+  timerState: 'standup-reminder.timer-state',
+  timerCommand: 'standup-reminder.timer-command'
 };
 
 const VALID_THEMES = new Set(['system', 'light', 'dark']);
@@ -85,4 +87,66 @@ export function markReminderDismissed() {
 
 export function getSeatedTimeLabel(minutes) {
   return `你已经坐了 ${clampInterval(minutes)} 分钟`;
+}
+
+export function createTimerState(state = {}) {
+  const intervalMinutes = clampInterval(state.intervalMinutes ?? 20);
+  const total = intervalMinutes * 60;
+  const elapsed = Math.max(0, Math.min(total, Number.parseInt(state.elapsed ?? 0, 10) || 0));
+  const remaining = Math.max(0, total - elapsed);
+
+  return {
+    running: Boolean(state.running),
+    intervalMinutes,
+    elapsed,
+    remaining,
+    total,
+    updatedAt: Number.parseInt(state.updatedAt ?? Date.now(), 10) || Date.now()
+  };
+}
+
+export function getStoredTimerState(fallbackInterval = 20) {
+  const rawValue = localStorage.getItem(STORAGE_KEYS.timerState);
+  if (!rawValue) {
+    return createTimerState({ intervalMinutes: fallbackInterval });
+  }
+
+  try {
+    const state = JSON.parse(rawValue);
+    return createTimerState({
+      intervalMinutes: state.intervalMinutes ?? fallbackInterval,
+      elapsed: state.elapsed,
+      running: state.running,
+      updatedAt: state.updatedAt
+    });
+  } catch {
+    return createTimerState({ intervalMinutes: fallbackInterval });
+  }
+}
+
+export function setStoredTimerState(state) {
+  localStorage.setItem(STORAGE_KEYS.timerState, JSON.stringify(createTimerState(state)));
+}
+
+export function getStoredTimerCommand() {
+  const rawValue = localStorage.getItem(STORAGE_KEYS.timerCommand);
+  if (!rawValue) return null;
+
+  try {
+    return JSON.parse(rawValue);
+  } catch {
+    return null;
+  }
+}
+
+export function issueTimerCommand(type, payload = {}) {
+  const command = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    type,
+    payload,
+    issuedAt: Date.now()
+  };
+
+  localStorage.setItem(STORAGE_KEYS.timerCommand, JSON.stringify(command));
+  return command;
 }

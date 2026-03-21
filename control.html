@@ -29,12 +29,6 @@
             --btn-hover-border: #9ca3af;
             --titlebar-bg: #ffffff;
             --titlebar-border: #e5e7eb;
-            --running-bg: #d1fae5;
-            --running-color: #059669;
-            --running-dot: #10b981;
-            --stopped-bg: #fee2e2;
-            --stopped-color: #dc2626;
-            --stopped-dot: #ef4444;
             --titlebar-height: 56px;
             --titlebar-left-space: 20px;
             --titlebar-right-space: 24px;
@@ -59,12 +53,6 @@
             --btn-hover-border: #0055b3;
             --titlebar-bg: #001a3c;
             --titlebar-border: #003366;
-            --running-bg: rgba(16, 185, 129, 0.2);
-            --running-color: #6ee7b7;
-            --running-dot: #34d399;
-            --stopped-bg: rgba(239, 68, 68, 0.2);
-            --stopped-color: #fca5a5;
-            --stopped-dot: #f87171;
         }
 
         * {
@@ -170,11 +158,6 @@
         body.platform-linux .time-display,
         body.platform-linux .time-input {
             font-size: 32px;
-        }
-
-        body.platform-win32 .status-badge,
-        body.platform-linux .status-badge {
-            margin-bottom: 18px;
         }
 
         /* 标题栏拖拽区域 */
@@ -622,58 +605,6 @@
             color: var(--accent-soft);
         }
 
-        /* 状态标签 */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            justify-content: center;
-        }
-
-        .status-badge.running {
-            background: var(--running-bg);
-            color: var(--running-color);
-        }
-
-        .status-badge.stopped {
-            background: var(--stopped-bg);
-            color: var(--stopped-color);
-        }
-
-        .status-badge .indicator {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-        }
-
-        .status-badge.running .indicator {
-            background: var(--running-dot);
-            animation: pulse-dot 2s ease-in-out infinite;
-        }
-
-        .status-badge.stopped .indicator {
-            background: var(--stopped-dot);
-        }
-
-        @keyframes pulse-dot {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.5;
-                transform: scale(1.3);
-            }
-        }
-
         /* 控制按钮区域 */
         .controls {
             display: flex;
@@ -901,11 +832,6 @@
                                 <div class="time-label" id="timeLabel">剩余时间</div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="status-badge stopped" id="statusBadge">
-                        <span class="indicator"></span>
-                        <span id="statusText">未开始</span>
                     </div>
                 </div>
 
