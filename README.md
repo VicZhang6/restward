@@ -52,21 +52,56 @@ npm install
 # 启动应用
 npm start
 
-# 或以开发模式启动（DevTools）
+# 或以开发模式启动（热重载 + DevTools）
 npm run dev
 ```
+
+开发模式说明：
+
+- `npm run dev` 使用 `electronmon`，在 Windows 上可正常工作
+- 修改 `main.js` / `preload.js` 时会自动重启 Electron
+- 修改 `control.html` / `reminder.html` / `control-renderer.js` / `renderer.js` 时会自动刷新窗口
+- `npm run dev:plain` 会保留原来的普通开发启动方式
 
 ### 构建安装包
 
 ```bash
+# 按当前系统直接构建
+npm run build
+
 # macOS DMG (arm64)
 npm run build:dmg
+
+# macOS 通用构建
+npm run build:mac
 
 # Windows EXE (x64)
 npm run build:win
 ```
 
 构建产物在 `dist/` 目录下。
+
+### Windows 构建说明
+
+在 Windows 10 / 11 上可以直接本地打包，无需额外配置：
+
+```bash
+npm install
+npm run build:win
+```
+
+或者直接使用：
+
+```bash
+npm run build
+```
+
+说明：
+
+- `npm run build` 会按当前操作系统自动构建；在 Windows 上会生成 NSIS 安装包
+- 安装包输出路径为 `dist/站立提醒 Setup 1.0.0.exe`
+- 首次打包时 `electron-builder` 会自动下载 Electron 与 NSIS 相关依赖，需要保持网络畅通
+- 当前项目未配置代码签名，Windows 可能会显示 SmartScreen 提示，这属于正常现象
 
 ## 🛠 技术栈
 

@@ -18,6 +18,25 @@ const increaseBtn = document.getElementById('increaseBtn');
 let currentInterval = 20;
 let isEditing = false;
 
+document.body.classList.add(`platform-${window.electronAPI.platform || 'unknown'}`);
+
+// Windows / Linux：标题栏自定义最小化、关闭
+(function setupWindowControls() {
+    const api = window.electronAPI;
+    if (!api?.minimizeControlWindow || !api?.closeControlWindow) return;
+    const p = api.platform;
+    if (p !== 'win32' && p !== 'linux') return;
+
+    document.querySelector('.win-btn-minimize')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        api.minimizeControlWindow();
+    });
+    document.querySelector('.win-btn-close')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        api.closeControlWindow();
+    });
+})();
+
 // 格式化时间
 function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);

@@ -1,4 +1,6 @@
 // renderer.js - 提醒弹窗渲染进程
+document.body.classList.add(`platform-${window.electronAPI.platform || 'unknown'}`);
+
 document.getElementById('dismiss-btn').addEventListener('click', () => {
     // 添加按钮反馈动画
     const btn = document.getElementById('dismiss-btn');

@@ -6,10 +6,18 @@
   "author": "Vic Zhang",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev",
-    "build": "electron-builder --mac --arm64",
+    "dev": "electronmon . --dev",
+    "dev:plain": "electron . --dev",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac --arm64",
     "build:dmg": "electron-builder --mac dmg --arm64",
     "build:win": "electron-builder --win --x64"
+  },
+  "electronmon": {
+    "patterns": [
+      "!dist/**",
+      "!tmp-control-window*.png"
+    ]
   },
   "build": {
     "appId": "com.viczhang.standup-reminder",
@@ -74,6 +82,7 @@
   },
   "devDependencies": {
     "electron": "^33.0.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "electronmon": "^2.0.4"
   }
 }

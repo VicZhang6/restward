@@ -1,5 +1,12 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage } = require('electron');
 const path = require('path');
+const isMac = process.platform === 'darwin';
+const isWindows = process.platform === 'win32';
+const isDev = process.argv.includes('--dev');
+
+if (isWindows) {
+    app.disableHardwareAcceleration();
+}
 
 // ── 全局状态 ──────────────────────────────────────────
 let tray = null;
@@ -59,7 +66,7 @@ function createTray() {
 }
 
 function createTrayIcon() {
-    if (process.platform === 'darwin') {
+    if (isMac) {
         // macOS: 使用 Template 图标，自动适配深色/浅色模式
         const iconPath = path.join(__dirname, 'assets', 'tray-iconTemplate.png');
         const img = nativeImage.createFromPath(iconPath);
@@ -102,19 +109,44 @@ function showControlWindow() {
         return;
     }
 
-    controlWindow = new BrowserWindow({
+    const controlWindowOptions = {
         width: 420,
-        height: 520,
+        height: 560,
         resizable: false,
         maximizable: false,
-        titleBarStyle: 'hiddenInset',
-        vibrancy: 'under-window',
-        visualEffectState: 'active',
-        backgroundColor: '#00000000',
+        show: false,
+        useContentSize: true,
+        autoHideMenuBar: true,
+        backgroundColor: isMac ? '#00000000' : '#eef2ff',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false
+        }
+    };
+
+    if (isMac) {
+        controlWindowOptions.titleBarStyle = 'hiddenInset';
+        controlWindowOptions.vibrancy = 'under-window';
+        controlWindowOptions.visualEffectState = 'active';
+    } else {
+        controlWindowOptions.titleBarStyle = 'hidden';
+        controlWindowOptions.icon = path.join(__dirname, 'assets', 'icon.ico');
+    }
+
+    // Windows/Linux：使用页面内自定义标题栏按钮，便于悬停底色；不再使用 titleBarOverlay
+
+    controlWindow = new BrowserWindow(controlWindowOptions);
+
+    if (isWindows) {
+        controlWindow.removeMenu();
+    }
+
+    controlWindow.once('ready-to-show', () => {
+        controlWindow.show();
+
+        if (isDev) {
+            controlWindow.webContents.openDevTools({ mode: 'detach' });
         }
     });
 
@@ -138,29 +170,40 @@ function showReminder() {
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
-    reminderWindow = new BrowserWindow({
+    const reminderWindowOptions = {
         width: width,
         height: height,
         x: 0,
         y: 0,
         frame: false,
-        transparent: true,
         alwaysOnTop: true,
         skipTaskbar: true,
         resizable: false,
         movable: false,
         fullscreenable: false,
         hasShadow: false,
+        show: false,
+        backgroundColor: isMac ? '#00000000' : '#101828',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false
         }
-    });
+    };
+
+    if (isMac) {
+        reminderWindowOptions.transparent = true;
+    }
+
+    reminderWindow = new BrowserWindow(reminderWindowOptions);
 
     reminderWindow.setAlwaysOnTop(true, 'screen-saver');
     reminderWindow.setVisibleOnAllWorkspaces(true);
     reminderWindow.loadFile('reminder.html');
+    reminderWindow.once('ready-to-show', () => {
+        reminderWindow.show();
+        reminderWindow.focus();
+    });
 
     reminderWindow.on('closed', () => {
         reminderWindow = null;
@@ -270,8 +313,24 @@ ipcMain.handle('get-timer-state', () => {
     };
 });
 
+ipcMain.on('control-window-minimize', () => {
+    if (controlWindow && !controlWindow.isDestroyed()) {
+        controlWindow.minimize();
+    }
+});
+
+ipcMain.on('control-window-close', () => {
+    if (controlWindow && !controlWindow.isDestroyed()) {
+        controlWindow.close();
+    }
+});
+
 // ── 应用生命周期 ──────────────────────────────────────
 app.whenReady().then(() => {
+    if (isWindows) {
+        Menu.setApplicationMenu(null);
+    }
+
     createTray();
     showControlWindow();
 });
