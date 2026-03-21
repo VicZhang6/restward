@@ -60,6 +60,10 @@ const themeLight = document.getElementById('themeLight');
 const themeDark = document.getElementById('themeDark');
 const currentThemeStatus = document.getElementById('currentThemeStatus');
 const showFloatingToggle = document.getElementById('showFloatingToggle');
+const releaseDownloadBtn = document.getElementById('releaseDownloadBtn');
+
+const RELEASE_LATEST_URL =
+  'https://github.com/VicZhang6/standup-reminder/releases/latest';
 
 let tray = null;
 let currentInterval = getStoredInterval(20);
