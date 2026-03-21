@@ -9,7 +9,8 @@ export default defineConfig({
       input: {
         control: resolve(__dirname, 'control.html'),
         reminder: resolve(__dirname, 'reminder.html'),
-        floating: resolve(__dirname, 'floating.html')
+        floating: resolve(__dirname, 'floating.html'),
+        'floating-menu': resolve(__dirname, 'floating-menu.html')
       }
     }
   }

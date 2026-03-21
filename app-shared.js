@@ -1,6 +1,7 @@
 export const STORAGE_KEYS = {
   theme: 'standup-reminder.theme',
   intervalMinutes: 'standup-reminder.interval-minutes',
+  showFloating: 'standup-reminder.show-floating',
   showTrayTime: 'standup-reminder.show-tray-time',
   reminderDismissedAt: 'standup-reminder.reminder-dismissed-at',
   timerState: 'standup-reminder.timer-state',
@@ -70,6 +71,15 @@ export function getStoredInterval(fallback = 20) {
 
 export function setStoredInterval(minutes) {
   localStorage.setItem(STORAGE_KEYS.intervalMinutes, String(clampInterval(minutes)));
+}
+
+export function getStoredShowFloating(fallback = true) {
+  const value = localStorage.getItem(STORAGE_KEYS.showFloating);
+  return value === null ? fallback : value === 'true';
+}
+
+export function setStoredShowFloating(showFloating) {
+  localStorage.setItem(STORAGE_KEYS.showFloating, String(Boolean(showFloating)));
 }
 
 export function getStoredShowTrayTime(fallback = true) {

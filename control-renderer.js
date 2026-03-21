@@ -3,6 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { Menu } from '@tauri-apps/api/menu';
 import { TrayIcon } from '@tauri-apps/api/tray';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { LogicalPosition } from '@tauri-apps/api/dpi';
 import { currentMonitor, getCurrentWindow } from '@tauri-apps/api/window';
 import {
   STORAGE_KEYS,
@@ -10,12 +11,14 @@ import {
   clampInterval,
   detectPlatform,
   getStoredInterval,
+  getStoredShowFloating,
   getStoredShowTrayTime,
   getStoredTimerCommand,
   getStoredTheme,
   getThemeStatusText,
   setStoredInterval,
   setStoredTimerState,
+  setStoredShowFloating,
   setStoredShowTrayTime,
   setStoredTheme
 } from './app-shared.js';
@@ -24,6 +27,11 @@ const currentWindow = getCurrentWindow();
 const platform = detectPlatform();
 const CIRCUMFERENCE = 2 * Math.PI * 78;
 const TRAY_ID = 'standup-reminder-tray';
+const FLOATING_MENU_LABEL = 'floating-menu';
+const FLOATING_MENU_SIZE = {
+  width: 216,
+  height: 320
+};
 
 // DOM 元素 - 主界面
 const progressCircle = document.getElementById('progressCircle');
@@ -50,9 +58,11 @@ const themeSystem = document.getElementById('themeSystem');
 const themeLight = document.getElementById('themeLight');
 const themeDark = document.getElementById('themeDark');
 const currentThemeStatus = document.getElementById('currentThemeStatus');
+const showFloatingToggle = document.getElementById('showFloatingToggle');
 
 let tray = null;
 let currentInterval = getStoredInterval(20);
+let showFloating = getStoredShowFloating(true);
 let showTrayTime = getStoredShowTrayTime(true);
 let isEditing = false;
 let currentTheme = getStoredTheme();
@@ -125,10 +135,17 @@ function showMainView() {
   settingsView.classList.remove('active');
 }
 
+function updateFloatingToggleUI() {
+  if (showFloatingToggle) {
+    showFloatingToggle.checked = showFloating;
+  }
+}
+
 function showSettingsView() {
   settingsView.classList.add('active');
   mainView.classList.remove('active');
   updateThemeStatus();
+  updateFloatingToggleUI();
 }
 
 function updateUI(data = getState()) {
@@ -190,6 +207,10 @@ async function getFloatingWindow() {
   return WebviewWindow.getByLabel('floating');
 }
 
+async function getFloatingMenuWindow() {
+  return WebviewWindow.getByLabel(FLOATING_MENU_LABEL);
+}
+
 async function isFloatingWindowVisible() {
   const floatingWindow = await getFloatingWindow();
   if (!floatingWindow) return false;
@@ -204,14 +225,15 @@ async function isFloatingWindowVisible() {
 async function createFloatingWindow() {
   const existingWindow = await getFloatingWindow();
   if (existingWindow) {
+    await existingWindow.setShadow(false).catch(() => {});
     return existingWindow;
   }
 
   const monitor = await currentMonitor();
   const size = monitor?.size || { width: 1440, height: 900 };
   const position = monitor?.position || { x: 0, y: 0 };
-  const width = 100;
-  const height = 36;
+  const width = 140;
+  const height = 52;
   const x = position.x + size.width - width - 16;
   const y = position.y + Math.max(48, Math.round(size.height * 0.12));
 
@@ -228,6 +250,7 @@ async function createFloatingWindow() {
       x,
       y,
       decorations: false,
+      shadow: false,
       resizable: false,
       maximizable: false,
       minimizable: false,
@@ -236,7 +259,7 @@ async function createFloatingWindow() {
       alwaysOnTop: true,
       focus: false,
       visible: true,
-      transparent: false
+      transparent: true
     });
 
     floatingWindow.once('tauri://created', () => resolve(floatingWindow));
@@ -249,7 +272,73 @@ async function showFloatingWindow() {
   await floatingWindow.show();
 }
 
+async function closeFloatingMenuWindow() {
+  const floatingMenuWindow = await getFloatingMenuWindow();
+  if (!floatingMenuWindow) return;
+
+  await floatingMenuWindow.hide().catch(() => { });
+}
+
+async function destroyFloatingMenuWindow() {
+  const floatingMenuWindow = await getFloatingMenuWindow();
+  if (!floatingMenuWindow) return;
+
+  await floatingMenuWindow.close().catch(() => { });
+}
+
+async function showFloatingMenuWindow(anchor = {}) {
+  const monitor = await currentMonitor();
+  const size = monitor?.size || { width: 1440, height: 900 };
+  const position = monitor?.position || { x: 0, y: 0 };
+  const margin = 12;
+  const requestedX = Math.round(Number(anchor.x) || position.x + size.width / 2);
+  const requestedY = Math.round(Number(anchor.y) || position.y + size.height / 2);
+  const x = Math.max(
+    position.x + margin,
+    Math.min(requestedX, position.x + size.width - FLOATING_MENU_SIZE.width - margin)
+  );
+  const y = Math.max(
+    position.y + margin,
+    Math.min(requestedY, position.y + size.height - FLOATING_MENU_SIZE.height - margin)
+  );
+
+  const existingWindow = await getFloatingMenuWindow();
+  if (existingWindow) {
+    await existingWindow.setPosition(new LogicalPosition(x, y)).catch(() => { });
+    await existingWindow.show().catch(() => { });
+    await existingWindow.setFocus().catch(() => { });
+    return existingWindow;
+  }
+
+  return new Promise((resolve, reject) => {
+    const floatingMenuWindow = new WebviewWindow(FLOATING_MENU_LABEL, {
+      url: 'floating-menu.html',
+      title: '站立提醒菜单',
+      width: FLOATING_MENU_SIZE.width,
+      height: FLOATING_MENU_SIZE.height,
+      x,
+      y,
+      decorations: false,
+      shadow: false,
+      resizable: false,
+      maximizable: false,
+      minimizable: false,
+      closable: true,
+      skipTaskbar: true,
+      alwaysOnTop: true,
+      focus: true,
+      visible: true,
+      transparent: true
+    });
+
+    floatingMenuWindow.once('tauri://created', () => resolve(floatingMenuWindow));
+    floatingMenuWindow.once('tauri://error', reject);
+  });
+}
+
 async function hideFloatingWindow() {
+  await closeFloatingMenuWindow();
+
   const floatingWindow = await getFloatingWindow();
   if (!floatingWindow) return;
   await floatingWindow.hide();
@@ -263,16 +352,18 @@ async function quitApp() {
 
   const reminderWindow = await WebviewWindow.getByLabel('reminder');
   if (reminderWindow) {
-    await reminderWindow.close().catch(() => {});
+    await reminderWindow.close().catch(() => { });
   }
 
   const floatingWindow = await getFloatingWindow();
   if (floatingWindow) {
-    await floatingWindow.close().catch(() => {});
+    await floatingWindow.close().catch(() => { });
   }
 
+  await destroyFloatingMenuWindow();
+
   if (tray) {
-    await TrayIcon.removeById(TRAY_ID).catch(() => {});
+    await TrayIcon.removeById(TRAY_ID).catch(() => { });
   }
 
   await invoke('quit_app');
@@ -295,8 +386,19 @@ async function rebuildTrayMenu() {
         id: 'toggle-floating',
         text: floatingWindowVisible ? '隐藏悬浮窗' : '显示悬浮窗',
         action: () => {
-          void (floatingWindowVisible ? hideFloatingWindow() : showFloatingWindow());
-          void rebuildTrayMenu();
+          void (async () => {
+            if (floatingWindowVisible) {
+              showFloating = false;
+              setStoredShowFloating(false);
+              await hideFloatingWindow();
+            } else {
+              showFloating = true;
+              setStoredShowFloating(true);
+              await showFloatingWindow();
+            }
+            updateFloatingToggleUI();
+            void rebuildTrayMenu();
+          })();
         }
       },
       { item: 'Separator' },
@@ -335,7 +437,7 @@ async function rebuildTrayMenu() {
 async function createTray() {
   const existingTray = await TrayIcon.getById(TRAY_ID);
   if (existingTray) {
-    await TrayIcon.removeById(TRAY_ID).catch(() => {});
+    await TrayIcon.removeById(TRAY_ID).catch(() => { });
   }
 
   tray = await TrayIcon.new({
@@ -419,7 +521,7 @@ async function showReminder() {
 
   const reminderWindow = await createReminderWindow();
   await reminderWindow.show();
-  await reminderWindow.setFocus().catch(() => {});
+  await reminderWindow.setFocus().catch(() => { });
 }
 
 function startTimer({ resetElapsed = false } = {}) {
@@ -545,13 +647,25 @@ async function handleTimerCommand(command) {
       resetTimer();
       break;
     case 'show-main':
+      await closeFloatingMenuWindow();
       await showControlWindow();
       break;
     case 'show-floating':
+      showFloating = true;
+      setStoredShowFloating(true);
+      await closeFloatingMenuWindow();
       await showFloatingWindow();
       break;
     case 'hide-floating':
+      showFloating = false;
+      setStoredShowFloating(false);
       await hideFloatingWindow();
+      break;
+    case 'show-floating-menu':
+      await showFloatingMenuWindow(command.payload);
+      break;
+    case 'hide-floating-menu':
+      await closeFloatingMenuWindow();
       break;
     case 'quit-app':
       await quitApp();
@@ -561,6 +675,7 @@ async function handleTimerCommand(command) {
   }
 
   if (['show-floating', 'hide-floating'].includes(command.type)) {
+    updateFloatingToggleUI();
     void rebuildTrayMenu();
   }
 }
@@ -576,6 +691,12 @@ function handleStorageChange(event) {
     currentInterval = getStoredInterval(currentInterval);
     updateUI();
     syncTimerState();
+    return;
+  }
+
+  if (event.key === STORAGE_KEYS.showFloating) {
+    showFloating = getStoredShowFloating(true);
+    updateFloatingToggleUI();
     return;
   }
 
@@ -641,6 +762,20 @@ async function init() {
   themeLight?.addEventListener('click', () => selectTheme('light'));
   themeDark?.addEventListener('click', () => selectTheme('dark'));
 
+  showFloatingToggle?.addEventListener('change', () => {
+    const enabled = showFloatingToggle.checked;
+    void (async () => {
+      showFloating = enabled;
+      setStoredShowFloating(enabled);
+      if (enabled) {
+        await showFloatingWindow();
+      } else {
+        await hideFloatingWindow();
+      }
+      void rebuildTrayMenu();
+    })();
+  });
+
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     if (currentTheme === 'system') {
       syncTheme();
@@ -696,10 +831,17 @@ async function init() {
   }
 
   try {
-    await showFloatingWindow();
+    if (showFloating) {
+      await showFloatingWindow();
+    } else {
+      await hideFloatingWindow();
+    }
   } catch (error) {
     console.error('Failed to initialize floating window.', error);
   }
+
+  updateFloatingToggleUI();
 }
 
+updateFloatingToggleUI();
 void init();
