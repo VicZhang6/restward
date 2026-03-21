@@ -446,10 +446,17 @@ function setupWindowControls() {
   });
 }
 
+function disableContextMenu() {
+  window.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+  });
+}
+
 async function init() {
   syncTheme();
   updateUI();
   setupWindowControls();
+  disableContextMenu();
   await currentWindow.onCloseRequested((event) => {
     event.preventDefault();
     void hideControlWindow();

@@ -50,10 +50,17 @@ function setupDismissButton() {
   });
 }
 
+function disableContextMenu() {
+  window.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+  });
+}
+
 function init() {
   syncTheme();
   updateSeatedTime();
   setupDismissButton();
+  disableContextMenu();
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     if (currentTheme === 'system') {
