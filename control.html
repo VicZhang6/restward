@@ -36,23 +36,33 @@
 
         :root[data-theme="dark"] {
             color-scheme: dark;
-            --window-bg: #001a3c;
-            --surface-bg: #001a3c;
-            --surface-border: #003366;
-            --surface-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-            --text-primary: #e6f0ff;
-            --text-secondary: #8aa8d9;
-            --progress-bg: #003366;
+            --window-bg: #202020;
+            --surface-bg: #202020;
+            --surface-border: #3d3d3d;
+            --surface-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+            --text-primary: #f0f0f0;
+            --text-secondary: #b0b0b0;
+            --progress-bg: #3a3a3a;
             --progress-fg-start: #4f46e5;
             --progress-fg-end: #6366f1;
-            --card-bg: #002851;
-            --card-border: #003d80;
-            --btn-bg: #002851;
-            --btn-border: #003d80;
-            --btn-hover-bg: #003366;
-            --btn-hover-border: #0055b3;
-            --titlebar-bg: #001a3c;
-            --titlebar-border: #003366;
+            --card-bg: #2c2c2c;
+            --card-border: #404040;
+            --btn-bg: #2c2c2c;
+            --btn-border: #404040;
+            --btn-hover-bg: #363636;
+            --btn-hover-border: #4a4a4a;
+            --titlebar-bg: #202020;
+            --titlebar-border: #3d3d3d;
+            --settings-inset-bg: #1a1a1a;
+            /* 主操作按钮：深色下略压低饱和度，用内高光与色散阴影贴合黑底 */
+            --btn-primary-bg: linear-gradient(145deg, #4338ca 0%, #5b5fc7 45%, #6366f1 100%);
+            --btn-primary-hover-bg: linear-gradient(145deg, #3730a3 0%, #4f46e5 100%);
+            --btn-primary-shadow: 0 1px 0 rgba(255, 255, 255, 0.07) inset, 0 6px 18px rgba(79, 70, 229, 0.32);
+            --btn-primary-hover-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 8px 22px rgba(79, 70, 229, 0.38);
+            --btn-running-bg: linear-gradient(145deg, #9a3412 0%, #c2410c 55%, #ea580c 100%);
+            --btn-running-hover-bg: linear-gradient(145deg, #7c2d12 0%, #9a3412 100%);
+            --btn-running-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 6px 18px rgba(234, 88, 12, 0.28);
+            --btn-running-hover-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 8px 22px rgba(234, 88, 12, 0.34);
         }
 
         * {
@@ -103,8 +113,8 @@
         }
 
         :root[data-theme="dark"] body.platform-darwin .app {
-            background: #001a3c;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            background: var(--surface-bg);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
         }
 
         body.platform-darwin {
@@ -124,7 +134,7 @@
 
         :root[data-theme="dark"] body.platform-win32 .app,
         :root[data-theme="dark"] body.platform-linux .app {
-            background: #001a3c;
+            background: var(--surface-bg);
         }
 
         body.platform-win32 {
@@ -149,15 +159,15 @@
         body.platform-win32 .progress-ring svg,
         body.platform-linux .progress-ring,
         body.platform-linux .progress-ring svg {
-            width: 160px;
-            height: 160px;
+            width: 200px;
+            height: 200px;
         }
 
         body.platform-win32 .time-display,
         body.platform-win32 .time-input,
         body.platform-linux .time-display,
         body.platform-linux .time-input {
-            font-size: 32px;
+            font-size: 40px;
         }
 
         /* 标题栏拖拽区域 */
@@ -177,8 +187,8 @@
         }
 
         :root[data-theme="dark"] .titlebar {
-            background: #001a3c;
-            border-bottom: 1px solid #003366;
+            background: var(--titlebar-bg);
+            border-bottom: 1px solid var(--titlebar-border);
         }
 
         .titlebar-badge {
@@ -306,13 +316,20 @@
         /* 设置页：内容超出窗口时在视图内滚动 */
         #settingsView {
             justify-content: flex-start;
-            align-items: stretch;
+            align-items: flex-start;
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
             scrollbar-width: none;
             -ms-overflow-style: none;
+        }
+
+        #settingsView .settings-title,
+        #settingsView .setting-card {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         #settingsView::-webkit-scrollbar {
@@ -333,29 +350,70 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* 设置页面返回按钮 */
+        /* 设置页面返回按钮（仅图标）；强制正圆，避免在 flex stretch 下被拉成扁椭圆 */
         .back-btn {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 0;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: color 0.2s ease;
+            justify-content: center;
+            align-self: flex-start;
+            flex: 0 0 auto;
+            box-sizing: border-box;
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
+            max-width: 40px;
+            max-height: 40px;
+            aspect-ratio: 1;
             margin-bottom: 16px;
+            padding: 0;
+            border: 1px solid var(--surface-border);
+            border-radius: 50%;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--accent);
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                color 0.2s ease,
+                transform 0.15s ease;
         }
 
         .back-btn:hover {
-            color: var(--text-primary);
+            background: rgba(79, 70, 229, 0.16);
+            border-color: #d1d5db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .back-btn:active {
+            transform: scale(0.96);
+        }
+
+        .back-btn:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        :root[data-theme="dark"] .back-btn {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+        }
+
+        :root[data-theme="dark"] .back-btn:hover {
+            background: rgba(99, 102, 241, 0.3);
+            border-color: var(--btn-hover-border);
+            color: #c7d2fe;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
         }
 
         .back-btn svg {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
         }
 
         /* 设置页面标题 */
@@ -376,8 +434,8 @@
         }
 
         :root[data-theme="dark"] .setting-card {
-            background: #002851;
-            border-color: #003d80;
+            background: var(--card-bg);
+            border-color: var(--card-border);
         }
 
         .setting-card-title {
@@ -447,7 +505,7 @@
         }
 
         :root[data-theme="dark"] .toggle-switch {
-            background: #475569;
+            background: #525252;
         }
 
         .toggle-switch::after {
@@ -497,8 +555,8 @@
         }
 
         :root[data-theme="dark"] .theme-option {
-            background: #002851;
-            border-color: #003d80;
+            background: var(--card-bg);
+            border-color: var(--card-border);
         }
 
         .theme-option:hover {
@@ -506,7 +564,7 @@
         }
 
         :root[data-theme="dark"] .theme-option:hover {
-            border-color: #0055b3;
+            border-color: #5c5c5c;
         }
 
         .theme-option.selected {
@@ -515,7 +573,7 @@
         }
 
         :root[data-theme="dark"] .theme-option.selected {
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(99, 102, 241, 0.22);
         }
 
         .theme-preview {
@@ -532,12 +590,12 @@
         }
 
         .theme-preview.dark {
-            background: #001a3c;
-            border: 1px solid #003366;
+            background: #202020;
+            border: 1px solid #3d3d3d;
         }
 
         .theme-preview.system {
-            background: linear-gradient(90deg, #ffffff 50%, #001a3c 50%);
+            background: linear-gradient(90deg, #ffffff 50%, #202020 50%);
             border: 1px solid #e5e7eb;
         }
 
@@ -568,6 +626,7 @@
             margin-top: 16px;
             padding: 12px 16px;
             background: #f3f4f6;
+            border: 1px solid transparent;
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -575,7 +634,8 @@
         }
 
         :root[data-theme="dark"] .current-theme-status {
-            background: #002851;
+            background: var(--settings-inset-bg);
+            border: 1px solid #2f2f2f;
         }
 
         .status-label {
@@ -617,14 +677,14 @@
 
         .progress-ring {
             position: relative;
-            width: 180px;
-            height: 180px;
+            width: 220px;
+            height: 220px;
         }
 
         .progress-ring svg {
             transform: rotate(-90deg);
-            width: 180px;
-            height: 180px;
+            width: 220px;
+            height: 220px;
         }
 
         .progress-ring .bg {
@@ -650,7 +710,7 @@
         }
 
         .time-display {
-            font-size: 36px;
+            font-size: 44px;
             font-weight: 800;
             letter-spacing: -1px;
             color: var(--text-primary);
@@ -666,12 +726,12 @@
         }
 
         .time-input {
-            font-size: 36px;
+            font-size: 44px;
             font-weight: 800;
             letter-spacing: -1px;
             color: var(--accent-soft);
             line-height: 1;
-            width: 130px;
+            width: 152px;
             text-align: center;
             border: none;
             border-bottom: 3px solid var(--accent-soft);
@@ -741,6 +801,26 @@
             background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
         }
 
+        :root[data-theme="dark"] .btn-primary {
+            background: var(--btn-primary-bg);
+            box-shadow: var(--btn-primary-shadow);
+        }
+
+        :root[data-theme="dark"] .btn-primary:hover {
+            background: var(--btn-primary-hover-bg);
+            box-shadow: var(--btn-primary-hover-shadow);
+        }
+
+        :root[data-theme="dark"] .btn-primary.is-running {
+            background: var(--btn-running-bg);
+            box-shadow: var(--btn-running-shadow);
+        }
+
+        :root[data-theme="dark"] .btn-primary.is-running:hover {
+            background: var(--btn-running-hover-bg);
+            box-shadow: var(--btn-running-hover-shadow);
+        }
+
         .btn-primary svg {
             width: 18px;
             height: 18px;
@@ -777,14 +857,14 @@
         }
 
         :root[data-theme="dark"] .btn-reset {
-            background: #002851;
-            border-color: #003d80;
-            color: #8aa8d9;
+            background: var(--card-bg);
+            border-color: var(--card-border);
+            color: var(--text-secondary);
         }
 
         :root[data-theme="dark"] .btn-reset:hover {
-            background: #003366;
-            color: #e6f0ff;
+            background: var(--btn-hover-bg);
+            color: var(--text-primary);
         }
 
         /* 暂停状态下显示重置按钮 */
@@ -810,8 +890,8 @@
         }
 
         :root[data-theme="dark"] .interval-section {
-            background: #002851;
-            border-color: #003d80;
+            background: var(--card-bg);
+            border-color: var(--card-border);
         }
 
         .interval-label {
@@ -849,15 +929,15 @@
         }
 
         :root[data-theme="dark"] .interval-btn {
-            background: #002851;
-            border-color: #003d80;
-            color: #8aa8d9;
+            background: var(--settings-inset-bg);
+            border-color: var(--card-border);
+            color: var(--text-secondary);
         }
 
         :root[data-theme="dark"] .interval-btn:hover {
-            background: #003366;
-            border-color: #0055b3;
-            color: #e6f0ff;
+            background: var(--btn-hover-bg);
+            border-color: var(--btn-hover-border);
+            color: var(--text-primary);
         }
 
         .interval-btn:active {
@@ -962,11 +1042,10 @@
 
             <!-- 设置页面视图 -->
             <div class="view" id="settingsView">
-                <button class="back-btn" id="backBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button type="button" class="back-btn" id="backBtn" aria-label="返回" title="返回">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
-                    返回
                 </button>
 
                 <div class="settings-title">设置</div>

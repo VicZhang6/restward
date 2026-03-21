@@ -225,7 +225,7 @@ async function isFloatingWindowVisible() {
 async function createFloatingWindow() {
   const existingWindow = await getFloatingWindow();
   if (existingWindow) {
-    await existingWindow.setShadow(false).catch(() => {});
+    await existingWindow.setShadow(false).catch(() => { });
     return existingWindow;
   }
 
@@ -233,7 +233,7 @@ async function createFloatingWindow() {
   const size = monitor?.size || { width: 1440, height: 900 };
   const position = monitor?.position || { x: 0, y: 0 };
   const width = 140;
-  const height = 52;
+  const height = 44;
   const x = position.x + size.width - width - 16;
   const y = position.y + Math.max(48, Math.round(size.height * 0.12));
 
@@ -746,12 +746,54 @@ function disableContextMenu() {
   });
 }
 
+function shouldHandleToggleShortcut(event) {
+  const isSpaceKey = event.code === 'Space' || event.key === ' ';
+  if (!isSpaceKey || event.repeat) {
+    return false;
+  }
+
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+    return false;
+  }
+
+  if (!mainView.classList.contains('active') || settingsView.classList.contains('active') || isEditing) {
+    return false;
+  }
+
+  const target = event.target;
+  if (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement
+  ) {
+    return false;
+  }
+
+  if (target instanceof HTMLElement && target.isContentEditable) {
+    return false;
+  }
+
+  return true;
+}
+
+function setupKeyboardShortcuts() {
+  window.addEventListener('keydown', (event) => {
+    if (!shouldHandleToggleShortcut(event)) {
+      return;
+    }
+
+    event.preventDefault();
+    void toggleTimer();
+  });
+}
+
 async function init() {
   syncTheme();
   updateUI();
   syncTimerState();
   setupWindowControls();
   disableContextMenu();
+  setupKeyboardShortcuts();
   await currentWindow.onCloseRequested((event) => {
     event.preventDefault();
     void quitApp();

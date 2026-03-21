@@ -42,21 +42,23 @@ function getToggleActionLabel() {
   return '开始计时';
 }
 
-function getStatusLabel() {
+function getStatusInfo() {
   if (timerState.running) {
-    return '进行中';
+    return { text: '进行中', className: 'running' };
   }
 
   if (timerState.elapsed > 0) {
-    return '已暂停';
+    return { text: '已暂停', className: 'paused' };
   }
 
-  return '待开始';
+  return { text: '待开始', className: 'idle' };
 }
 
 function updateUI() {
-  remainingTimeLabel.textContent = `剩余 ${formatTime(timerState.remaining)}`;
-  statusLabel.textContent = getStatusLabel();
+  const statusInfo = getStatusInfo();
+  remainingTimeLabel.textContent = formatTime(timerState.remaining);
+  statusLabel.textContent = statusInfo.text;
+  statusLabel.className = `status-badge ${statusInfo.className}`;
   toggleActionLabel.textContent = getToggleActionLabel();
   toggleActionHint.textContent = timerState.running ? '暂停' : timerState.elapsed > 0 ? '继续' : '开始';
   resetAction.disabled = timerState.elapsed === 0;
