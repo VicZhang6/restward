@@ -1,6 +1,6 @@
 [package]
 name = "standup-reminder"
-version = "1.0.0"
+version = "1.5.0"
 description = "Standup reminder desktop app"
 authors = ["Vic Zhang"]
 license = "MIT"
