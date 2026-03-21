@@ -7,6 +7,7 @@
 - **迁移到 Tauri**：替换原 Electron 方案，并清理遗留文件。
 - **Windows 构建**：修复构建脚本；安装包支持 **中文 MSI**（及既有 NSIS 流程）。
 - **版本**：应用版本提升至 **1.5.0**；增加 `scripts/upload-release-assets.ps1`，便于向 GitHub Release 上传安装包。
+- **macOS（Apple Silicon）**：通过 `.github/workflows/build-macos-arm64.yml` 在 GitHub Actions 上构建 **ARM64 / aarch64** DMG（本地 Windows 无法交叉编译 macOS 安装包）。
 
 ### 窗口与界面
 
@@ -46,7 +47,13 @@
 
 ---
 
-### Windows 安装包
+### 安装包下载
+
+**Windows（x64）**
 
 - **NSIS**：`standup-reminder-1.5.0-x64-setup.exe`
 - **MSI**：`standup-reminder-1.5.0-x64-zh-CN.msi`
+
+**macOS（Apple Silicon / ARM64）**
+
+- **DMG**：`standup-reminder-1.5.0-aarch64.dmg`
