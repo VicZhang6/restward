@@ -22,6 +22,24 @@
     "core:window:allow-start-dragging",
     "core:window:allow-unminimize",
     "core:webview:allow-create-webview-window",
-    "opener:default"
+    "opener:default",
+    "autostart:default",
+    "fs:default",
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [{ "path": "$APPDATA/**" }]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [{ "path": "$APPDATA/**" }]
+    },
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [{ "path": "$APPDATA/**" }]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [{ "path": "$APPDATA/**" }]
+    }
   ]
 }

@@ -210,6 +210,29 @@
       height: 20px;
     }
 
+    .exercise-suggestion {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--timer-bg);
+      padding: 14px 20px;
+      border-radius: 14px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+
+    .exercise-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .exercise-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
     .tips {
       margin-top: 20px;
       font-size: 12px;
@@ -232,22 +255,27 @@
       </svg>
     </div>
 
-    <h1 class="title">该站起来活动一下了！</h1>
-    <p class="subtitle">久坐对身体不好，起来伸个懒腰、喝杯水吧 ☕</p>
+    <h1 class="title" id="reminder-title">该站起来活动一下了！</h1>
+    <p class="subtitle" id="reminder-subtitle">久坐对身体不好，起来伸个懒腰、喝杯水吧 ☕</p>
 
     <div class="timer-display">
       <span class="dot"></span>
       <span id="seated-time">你已经坐了 20 分钟</span>
     </div>
 
+    <div class="exercise-suggestion" id="exercise-suggestion">
+      <span class="exercise-icon">💡</span>
+      <span class="exercise-text" id="exercise-text"></span>
+    </div>
+
     <button class="dismiss-btn" id="dismiss-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="20 6 9 17 4 12"/>
       </svg>
-      我已站起来了
+      <span id="dismiss-btn-text">我已站起来了</span>
     </button>
 
-    <p class="tips">点击后将自动开始下一轮计时</p>
+    <p class="tips" id="reminder-tips">点击后将自动开始下一轮计时</p>
   </div>
 
   <script type="module" src="renderer.js"></script>

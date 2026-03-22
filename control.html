@@ -986,6 +986,346 @@
             text-align: center;
         }
 
+        /* 模式切换 */
+        .mode-switcher {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        :root[data-theme="dark"] .mode-switcher {
+            background: var(--card-bg);
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 9px;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .mode-tab.active {
+            background: #ffffff;
+            color: var(--accent);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        :root[data-theme="dark"] .mode-tab.active {
+            background: var(--btn-bg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .mode-tab:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        /* 番茄钟状态 */
+        .pomodoro-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .pomodoro-phase {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+            padding: 4px 12px;
+            background: rgba(79,70,229,0.1);
+            border-radius: 20px;
+        }
+
+        .pomodoro-phase.is-break {
+            color: #10b981;
+            background: rgba(16,185,129,0.1);
+        }
+
+        .pomodoro-round {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* 统计页面 */
+        .stats-summary {
+            display: flex;
+            gap: 12px;
+        }
+
+        .stat-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 14px 8px;
+            background: #f3f4f6;
+            border-radius: 12px;
+        }
+
+        :root[data-theme="dark"] .stat-item {
+            background: var(--settings-inset-bg);
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stats-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 8px;
+            height: 120px;
+            padding-top: 8px;
+        }
+
+        .chart-bar-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            height: 100%;
+        }
+
+        .chart-bar-container {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .chart-bar {
+            width: 100%;
+            max-width: 28px;
+            min-height: 4px;
+            background: linear-gradient(180deg, var(--accent) 0%, var(--accent-soft) 100%);
+            border-radius: 6px 6px 2px 2px;
+            transition: height 0.3s ease;
+        }
+
+        .chart-bar-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .chart-bar-value {
+            font-size: 10px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* 音效设置 */
+        .sound-options {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        :root[data-theme="dark"] .sound-options {
+            border-top-color: var(--card-border);
+        }
+
+        .sound-type-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .sound-type-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .sound-type-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .sound-type-btn {
+            padding: 5px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+
+        :root[data-theme="dark"] .sound-type-btn {
+            background: var(--settings-inset-bg);
+            border-color: var(--card-border);
+        }
+
+        .sound-type-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(79,70,229,0.08);
+        }
+
+        .sound-preview-btn {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+
+        :root[data-theme="dark"] .sound-preview-btn {
+            background: var(--settings-inset-bg);
+            border-color: var(--card-border);
+        }
+
+        .sound-preview-btn:hover {
+            background: rgba(79,70,229,0.08);
+        }
+
+        /* 番茄钟配置 */
+        .pomodoro-config-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pomo-config-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .pomo-config-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .pomo-config-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pomo-config-input {
+            width: 60px;
+            padding: 6px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+            font-family: inherit;
+        }
+
+        :root[data-theme="dark"] .pomo-config-input {
+            background: var(--settings-inset-bg);
+            border-color: var(--card-border);
+            color: var(--text-primary);
+        }
+
+        .pomo-config-input:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: -1px;
+        }
+
+        .pomo-config-unit {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* 语言选项 */
+        .language-options {
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        :root[data-theme="dark"] .lang-btn {
+            background: var(--card-bg);
+            border-color: var(--card-border);
+        }
+
+        .lang-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(79,70,229,0.08);
+        }
+
+        :root[data-theme="dark"] .lang-btn.active {
+            background: rgba(99,102,241,0.22);
+        }
+
+        /* Stats view scrolling */
+        #statsView {
+            justify-content: flex-start;
+            align-items: flex-start;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            scrollbar-width: none;
+        }
+
+        #statsView::-webkit-scrollbar {
+            display: none;
+        }
+
+        #statsView .setting-card {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
     </style>
 </head>
 
@@ -1025,13 +1365,25 @@
             <!-- 主页面视图 -->
             <div class="view active" id="mainView">
                 <div class="main-content">
+                    <!-- 模式切换 -->
+                    <div class="mode-switcher" id="modeSwitcher">
+                        <button class="mode-tab active" id="modeStandup" data-mode="standup">久坐提醒</button>
+                        <button class="mode-tab" id="modePomodoro" data-mode="pomodoro">番茄钟</button>
+                    </div>
+
+                    <!-- 番茄钟状态指示 -->
+                    <div class="pomodoro-status" id="pomodoroStatus" style="display:none">
+                        <span class="pomodoro-phase" id="pomodoroPhase">工作中</span>
+                        <span class="pomodoro-round" id="pomodoroRound">第 1/4 轮</span>
+                    </div>
+
                     <div class="progress-section">
                         <div class="progress-ring">
                             <svg viewBox="0 0 180 180">
                                 <defs>
                                     <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" style="stop-color:#4f46e5" />
-                                        <stop offset="100%" style="stop-color:#6366f1" />
+                                        <stop offset="0%" id="gradStop1" style="stop-color:#4f46e5" />
+                                        <stop offset="100%" id="gradStop2" style="stop-color:#6366f1" />
                                     </linearGradient>
                                 </defs>
                                 <circle class="bg" cx="90" cy="90" r="78" />
@@ -1048,8 +1400,8 @@
                 </div>
 
                 <div class="controls">
-                    <div class="interval-section">
-                        <span class="interval-label">提醒间隔</span>
+                    <div class="interval-section" id="intervalSection">
+                        <span class="interval-label" id="intervalLabel">提醒间隔</span>
                         <div class="interval-control">
                             <button class="interval-btn" id="decreaseBtn">−</button>
                             <span class="interval-value" id="intervalValue">20 分钟</span>
@@ -1074,6 +1426,56 @@
                 </div>
             </div>
 
+            <!-- 统计页面视图 -->
+            <div class="view" id="statsView">
+                <button type="button" class="back-btn" id="statsBackBtn" aria-label="返回" title="返回">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <div class="settings-title" id="statsTitle">统计</div>
+
+                <!-- 今日摘要 -->
+                <div class="setting-card">
+                    <div class="setting-card-title" id="statsTodayLabel">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        今日
+                    </div>
+                    <div class="stats-summary">
+                        <div class="stat-item">
+                            <span class="stat-value" id="statStandUpCount">0</span>
+                            <span class="stat-label" id="statStandUpLabel">站立次数</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="statSeatedTime">0</span>
+                            <span class="stat-label" id="statSeatedLabel">久坐(分钟)</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="statResponseRate">-</span>
+                            <span class="stat-label" id="statResponseLabel">响应率</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 近 7 天柱状图 -->
+                <div class="setting-card">
+                    <div class="setting-card-title" id="statsWeekLabel">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        近 7 天
+                    </div>
+                    <div class="stats-chart" id="statsChart"></div>
+                </div>
+            </div>
+
             <!-- 设置页面视图 -->
             <div class="view" id="settingsView">
                 <button type="button" class="back-btn" id="backBtn" aria-label="返回" title="返回">
@@ -1082,11 +1484,11 @@
                     </svg>
                 </button>
 
-                <div class="settings-title">设置</div>
+                <div class="settings-title" id="settingsTitle">设置</div>
 
                 <!-- 外观主题设置 -->
                 <div class="setting-card">
-                    <div class="setting-card-title">
+                    <div class="setting-card-title" id="themeCardTitle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="5"/>
                             <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
@@ -1097,27 +1499,27 @@
                     <div class="theme-options">
                         <div class="theme-option" id="themeSystem" data-theme="system">
                             <div class="theme-preview system"></div>
-                            <span class="theme-option-label">跟随系统</span>
+                            <span class="theme-option-label" id="themeSystemLabel">跟随系统</span>
                         </div>
                         <div class="theme-option" id="themeLight" data-theme="light">
                             <div class="theme-preview light"></div>
-                            <span class="theme-option-label">浅色</span>
+                            <span class="theme-option-label" id="themeLightLabel">浅色</span>
                         </div>
                         <div class="theme-option" id="themeDark" data-theme="dark">
                             <div class="theme-preview dark"></div>
-                            <span class="theme-option-label">深色</span>
+                            <span class="theme-option-label" id="themeDarkLabel">深色</span>
                         </div>
                     </div>
 
                     <div class="current-theme-status">
-                        <span class="status-label">当前模式</span>
+                        <span class="status-label" id="currentThemeLabel">当前模式</span>
                         <span class="status-value" id="currentThemeStatus">跟随系统</span>
                     </div>
                 </div>
 
                 <!-- 悬浮窗 -->
                 <div class="setting-card">
-                    <div class="setting-card-title">
+                    <div class="setting-card-title" id="floatingCardTitle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="5" width="18" height="14" rx="2"/>
                             <line x1="3" y1="10" x2="21" y2="10"/>
@@ -1126,17 +1528,123 @@
                     </div>
                     <label class="setting-toggle-row" for="showFloatingToggle">
                         <div class="setting-toggle-text">
-                            <span class="setting-toggle-label">显示桌面悬浮窗</span>
-                            <span class="setting-toggle-hint">在屏幕角落显示迷你计时，可随时关闭</span>
+                            <span class="setting-toggle-label" id="floatingToggleLabel">显示桌面悬浮窗</span>
+                            <span class="setting-toggle-hint" id="floatingToggleHint">在屏幕角落显示迷你计时，可随时关闭</span>
                         </div>
                         <input type="checkbox" class="toggle-input" id="showFloatingToggle" />
                         <span class="toggle-switch" aria-hidden="true"></span>
                     </label>
                 </div>
 
+                <!-- 提醒音效 -->
+                <div class="setting-card">
+                    <div class="setting-card-title" id="soundCardTitle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                        提醒音效
+                    </div>
+                    <label class="setting-toggle-row" for="soundEnabledToggle">
+                        <div class="setting-toggle-text">
+                            <span class="setting-toggle-label" id="soundToggleLabel">启用提醒音效</span>
+                            <span class="setting-toggle-hint" id="soundToggleHint">提醒弹窗出现时播放提示音</span>
+                        </div>
+                        <input type="checkbox" class="toggle-input" id="soundEnabledToggle" />
+                        <span class="toggle-switch" aria-hidden="true"></span>
+                    </label>
+                    <div class="sound-options" id="soundOptions">
+                        <div class="sound-type-row">
+                            <span class="sound-type-label" id="soundTypeLabel">音效类型</span>
+                            <div class="sound-type-buttons">
+                                <button class="sound-type-btn active" data-sound="bell" id="soundBell">铃声</button>
+                                <button class="sound-type-btn" data-sound="chime" id="soundChime">风铃</button>
+                                <button class="sound-type-btn" data-sound="ding" id="soundDing">叮咚</button>
+                            </div>
+                        </div>
+                        <button type="button" class="sound-preview-btn" id="soundPreviewBtn">试听</button>
+                    </div>
+                </div>
+
+                <!-- 开机自启动 -->
+                <div class="setting-card">
+                    <div class="setting-card-title" id="autostartCardTitle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                        </svg>
+                        开机自启动
+                    </div>
+                    <label class="setting-toggle-row" for="autostartToggle">
+                        <div class="setting-toggle-text">
+                            <span class="setting-toggle-label" id="autostartToggleLabel">开机时自动启动</span>
+                            <span class="setting-toggle-hint" id="autostartToggleHint">系统启动后自动运行站立提醒</span>
+                        </div>
+                        <input type="checkbox" class="toggle-input" id="autostartToggle" />
+                        <span class="toggle-switch" aria-hidden="true"></span>
+                    </label>
+                </div>
+
+                <!-- 番茄钟设置 -->
+                <div class="setting-card" id="pomodoroConfigCard" style="display:none">
+                    <div class="setting-card-title" id="pomodoroConfigTitle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        番茄钟设置
+                    </div>
+                    <div class="pomodoro-config-grid">
+                        <label class="pomo-config-row">
+                            <span class="pomo-config-label" id="pomoWorkLabel">工作时长</span>
+                            <div class="pomo-config-input-wrap">
+                                <input type="number" class="pomo-config-input" id="pomoWorkInput" min="1" max="120" value="25" />
+                                <span class="pomo-config-unit" id="pomoMinUnit1">分钟</span>
+                            </div>
+                        </label>
+                        <label class="pomo-config-row">
+                            <span class="pomo-config-label" id="pomoShortLabel">短休息</span>
+                            <div class="pomo-config-input-wrap">
+                                <input type="number" class="pomo-config-input" id="pomoShortInput" min="1" max="60" value="5" />
+                                <span class="pomo-config-unit" id="pomoMinUnit2">分钟</span>
+                            </div>
+                        </label>
+                        <label class="pomo-config-row">
+                            <span class="pomo-config-label" id="pomoLongLabel">长休息</span>
+                            <div class="pomo-config-input-wrap">
+                                <input type="number" class="pomo-config-input" id="pomoLongInput" min="1" max="60" value="15" />
+                                <span class="pomo-config-unit" id="pomoMinUnit3">分钟</span>
+                            </div>
+                        </label>
+                        <label class="pomo-config-row">
+                            <span class="pomo-config-label" id="pomoIntervalLabel">长休息间隔</span>
+                            <div class="pomo-config-input-wrap">
+                                <input type="number" class="pomo-config-input" id="pomoIntervalInput" min="2" max="10" value="4" />
+                                <span class="pomo-config-unit" id="pomoRoundUnit">轮</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 语言 -->
+                <div class="setting-card">
+                    <div class="setting-card-title" id="languageCardTitle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        语言
+                    </div>
+                    <div class="language-options">
+                        <button class="lang-btn active" id="langZh" data-lang="zh">中文</button>
+                        <button class="lang-btn" id="langEn" data-lang="en">English</button>
+                    </div>
+                </div>
+
                 <!-- 关于 -->
                 <div class="setting-card">
-                    <div class="setting-card-title">
+                    <div class="setting-card-title" id="aboutCardTitle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"/>
                             <line x1="12" y1="16" x2="12" y2="12"/>
@@ -1145,8 +1653,8 @@
                         关于
                     </div>
                     <div class="about-block">
-                        <p class="about-line">站立提醒 v1.5.1</p>
-                        <p class="about-line">保持健康，定时活动</p>
+                        <p class="about-line" id="aboutVersion">站立提醒 v1.5.1</p>
+                        <p class="about-line" id="aboutSlogan">保持健康，定时活动</p>
                         <button type="button" class="about-download-btn" id="releaseDownloadBtn">下载最新版本</button>
                     </div>
                 </div>

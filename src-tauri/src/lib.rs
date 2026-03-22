@@ -1,3 +1,5 @@
+use tauri_plugin_autostart::MacosLauncher;
+
 #[tauri::command]
 fn quit_app(app: tauri::AppHandle) {
   app.exit(0);
@@ -7,6 +9,8 @@ fn quit_app(app: tauri::AppHandle) {
 pub fn run() {
   tauri::Builder::default()
     .plugin(tauri_plugin_opener::init())
+    .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, None))
+    .plugin(tauri_plugin_fs::init())
     .invoke_handler(tauri::generate_handler![quit_app])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
