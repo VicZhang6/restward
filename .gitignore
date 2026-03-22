@@ -1,0 +1,11 @@
+.DS_Store
+Thumbs.db
+*.log
+
+# 本地若仍保留旧构建目录，勿提交
+node_modules/
+dist/
+dist-web/
+src-tauri/
+.vite/
+node_modules
